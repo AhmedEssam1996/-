@@ -1,6 +1,18 @@
 import path from 'node:path';
 import type { NextConfig } from 'next';
 
+/*
+ * Netlify.
+ *
+ * `NETLIFY` is set by the platform on every build and deploy, so this branch is
+ * inert locally. The adapter itself is @netlify/plugin-nextjs, declared in
+ * netlify.toml — it is what rewrites incoming requests to the Next server, and
+ * without it Netlify serves `.next/static` and every page route 404s.
+ *
+ * See the note on `output` below for why nothing else is needed here.
+ */
+const isNetlify = Boolean(process.env.NETLIFY);
+
 // Pin the tracing/build root to this project.
 //
 // Without this, Next.js walks up the directory tree looking for lockfiles and
@@ -15,6 +27,16 @@ const projectRoot = path.resolve(__dirname);
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+
+  // Set by the platform, not a build-output mode.
+  //
+  // `output: 'standalone'` is deliberately NOT used. On Netlify the
+  // @netlify/plugin-nextjs adapter builds its own serverless functions from the
+  // normal `.next` output; standalone additionally emits a self-contained node
+  // server that Netlify never runs, which is dead weight in the bundle and the
+  // usual source of "cannot find module" errors at runtime.
+  ...(isNetlify ? { output: 'standalone' as const } : {}),
+
   // Explicitly declare the monorepo/workspace root for file tracing + bundling.
   outputFileTracingRoot: projectRoot,
   // Keep the dev overlay + HMR artefacts inside this project only.
@@ -28,6 +50,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
+
   async headers() {
     return [
       {

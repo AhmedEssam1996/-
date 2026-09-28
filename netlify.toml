@@ -1,0 +1,88 @@
+[build]
+  # Next.js on Netlify is wired up through the @netlify/plugin-nextjs runtime (see
+  # [plugins] below), so no framework preset is needed. NODE_VERSION is the one
+  # setting that does matter and it is usually wrong: Netlify's default image
+  # ships a Node older than the `>=20.9.0` engines field in package.json, and the
+  # install then fails on an "engines" error before a single line is compiled.
+  environment = { NODE_VERSION = "20" }
+
+[build.environment]
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# ---------------------------------------------------------------------------
+# Next.js runtime adapter
+# ---------------------------------------------------------------------------
+#
+# `@netlify/plugin-nextjs` is the current package name. The older
+# `@netlify/plugin-next` was deprecated in its favour — installing the old name
+# resolves to a 0.0.4 placeholder that does nothing, which produces a deploy
+# that "succeeds" and then 404s on every page.
+#
+# The plugin stays in devDependencies on purpose: Netlify installs dev
+# dependencies during the build, and the plugin is needed at build time only.
+[plugins]
+  package = "@netlify/plugin-nextjs"
+
+# ---------------------------------------------------------------------------
+# Functions
+# ---------------------------------------------------------------------------
+#
+# esbuild is the bundler for every serverless function. The AI SDK and its
+# OpenAI-compatible transport ship streaming/WASM code that the default bundler
+# struggles to trace, so both are left external and resolved from node_modules
+# at runtime instead of being inlined.
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["@ai-sdk/openai-compatible", "ai"]
+
+# The default 10s function timeout is shorter than the configured AI timeout, so
+# a slow-but-valid OpenRouter response would be killed mid-flight and the user
+# would see a 504 for no reason. Bumped to cover OPENROUTER_TIMEOUT_MS (45s)
+# plus retries.
+[functions."/api/**"]
+  timeout = 30
+
+# ---------------------------------------------------------------------------
+# Headers and redirects
+# ---------------------------------------------------------------------------
+#
+# Mirrors the security headers already set in next.config.ts, because Netlify's
+# CDN answers requests for static assets before Next.js ever runs — those
+# responses bypass the `headers()` function entirely.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+
+# Immutable hashed assets can be cached forever by the CDN.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The 3D scene is a real WebGL canvas, so WebGL is required for the visual to
+# work. The app still degrades to CSS-only if it is blocked, so this is
+# advertised rather than enforced.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-DNS-Prefetch-Control = "off"
+
+# ---------------------------------------------------------------------------
+# Edge middleware
+# ---------------------------------------------------------------------------
+#
+# src/middleware.ts is edge middleware. On Netlify the edge runtime is available
+# but has a hard 50ms CPU budget per invocation, and that middleware awaits a
+# real `supabase.auth.getUser()` network call on every navigation. The request
+# itself is not counted, but the surrounding work is tight enough that this is
+# the first thing to blame if cold starts feel slow.
+#
+# Left enabled deliberately: dropping it would remove the auth gate on
+# /dashboard, /admin, /create-gift and /settings. Those routes are also guarded
+# server-side by guardAdmin()/requireAdmin(), so removing the middleware would
+# not create a security hole — it would only lose the redirect UX.
