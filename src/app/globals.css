@@ -1,0 +1,1243 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* ==========================================================================
+   Hadiya — design tokens
+   --------------------------------------------------------------------------
+   A premium, futuristic AI gifting platform with deep space aesthetics.
+   Dark surfaces with vibrant holographic accents, holographic gradients,
+   glass morphism, and sophisticated motion. Every colour is declared once
+   as CSS custom properties for gradients, glows, and advanced effects.
+
+   Design philosophy:
+   - Deep space backgrounds with holographic accents
+   - Premium glass morphism with advanced blur
+   - Holographic gradients and glow effects
+   - Futuristic yet elegant typography
+   - Smooth, physics-based animations
+   - Interactive cursor effects and particles
+
+   Every token below is either:
+     --hd-*   a raw palette value (never used directly in components)
+     --<sem>  a semantic token (this is what components reference)
+   ========================================================================== */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* --- Raw palette ------------------------------------------------------- */
+  /* Deep space surfaces with holographic depth */
+  --hd-deep-space: #08090C;
+  --hd-space: #0D0F14;
+  --hd-void: #050608;
+  --hd-nebula: #12151A;
+  --hd-stardust: #1A1E26;
+
+  /* Holographic accents - vibrant, futuristic colors */
+  --hd-cyan: #19D3AE;
+  --hd-cyan-bright: #22E6BD;
+  --hd-cyan-deep: #14B89A;
+  --hd-lime: #A3E635;
+  --hd-lime-bright: #B4F055;
+  --hd-lime-deep: #8FD42E;
+  --hd-purple: #8B5CF6;
+  --hd-purple-bright: #A78BFA;
+  --hd-purple-deep: #7C3AED;
+  --hd-pink: #EC4899;
+  --hd-pink-bright: #F472B6;
+  --hd-pink-deep: #DB2777;
+  --hd-blue: #3B82F6;
+  --hd-blue-bright: #60A5FA;
+  --hd-blue-deep: #2563EB;
+  --hd-orange: #F97316;
+  --hd-orange-bright: #FB923C;
+  --hd-orange-deep: #EA580C;
+
+  /* Premium metallic accents */
+  --hd-gold: #FBBF24;
+  --hd-gold-bright: #FCD34D;
+  --hd-gold-deep: #F59E0B;
+  --hd-silver: #94A3B8;
+  --hd-silver-bright: #CBD5E1;
+  --hd-silver-deep: #64748B;
+
+  /* Warm / plum family.
+     ------------------------------------------------------------------
+     These read as the "gift paper" side of the palette: rose, coral, plum
+     and gold. They are what stop the UI from looking like a generic dark
+     dashboard — the cyan is the product accent, these are the *emotion*.
+     Declared here so every `var(--hd-*)` reference in the app resolves. */
+  --hd-plum: #1E0F33;
+  --hd-plum-deep: #120820;
+  --hd-plum-soft: #2B1547;
+  --hd-ink: #160726;
+  --hd-night: #0B0614;
+
+  --hd-coral: #FF7A5C;
+  --hd-rose: #FF5C8A;
+  --hd-yellow: #FFD166;
+  --hd-yellow-bright: #FFE08F;
+  --hd-lavender: #C9B6FF;
+  --hd-lavender-deep: #7C4DDB;
+  --hd-pink-soft: #FFB3D2;
+  --hd-gold-soft: #FFE3A3;
+
+  /* Enhanced neutrals for deep space */
+  --hd-white: #FFFFFF;
+  --hd-white-muted: rgba(255, 255, 255, 0.87);
+  --hd-white-faint: rgba(255, 255, 255, 0.64);
+  --hd-white-dim: rgba(255, 255, 255, 0.42);
+  --hd-white-glow: rgba(255, 255, 255, 0.12);
+
+  /* --- Surfaces ---------------------------------------------------------- */
+  --bg: var(--hd-deep-space);
+  --bg-soft: var(--hd-space);
+  --bg-elevated: var(--hd-nebula);
+  --card: rgba(255, 255, 255, 0.04);
+  --card-soft: rgba(255, 255, 255, 0.025);
+  --card-elevated: rgba(255, 255, 255, 0.06);
+  --card-hover: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-glow: rgba(255, 255, 255, 0.12);
+
+  /* --- Brand ------------------------------------------------------------- */
+  --primary: var(--hd-cyan);
+  --primary-glow: var(--hd-cyan-bright);
+  --secondary: var(--hd-lime);
+  --secondary-glow: var(--hd-lime-bright);
+  --accent: var(--hd-purple);
+  --accent-glow: var(--hd-purple-bright);
+  --gold: var(--hd-gold);
+  --gold-glow: var(--hd-gold-bright);
+
+  /* --- On-accent ink ----------------------------------------------------
+     ------------------------------------------------------------------------
+     The single most common contrast bug in this codebase: `--primary` is a
+     LIGHT cyan (#19D3AE, relative luminance ~0.46). Anything that fills a
+     surface with `--primary` and then paints white text on it lands at 1.9:1 —
+     far below the 4.5:1 WCAG AA floor — and no amount of care at the call site
+     fixes it, because the call site only knows "primary".
+
+     So the fix belongs here, not in the components: every accent surface gets a
+     declared ink. Measured against #19D3AE:
+       --primary-ink  #04231C  10.1:1
+       --accent-ink   #0B0614   7.4:1
+     Anything lighter would fail; anything darker is unreadable on the plum. */
+  --primary-ink: #04231c;
+  --accent-ink: #0b0614;
+
+  /* --- 3D perspective ----------------------------------------------------
+     One scale, used everywhere, so every tilted surface in the product
+     shares the same apparent depth. `--perspective-hero` is for the big
+     hero scenes, `--perspective-card` for grid cards. */
+  --perspective-hero: 1400px;
+  --perspective-card: 900px;
+  --perspective-tight: 600px;
+
+  /* --- Motion ------------------------------------------------------------
+     Three durations and four easings. Nothing in the app should invent its
+     own timing: pick a duration that matches the *size* of the change and
+     an easing that matches its *character*.
+
+       fast   150–200ms — hover, focus, colour, press
+       normal 250–350ms — menus, tooltips, small reveals
+       large  400–600ms — page transitions, modals, section reveals
+
+     `--ease-out-expo` is the signature curve: fast out, long settle. It is
+     what makes the product feel expensive rather than merely animated. */
+  --duration-fast: 180ms;
+  --duration-normal: 300ms;
+  --duration-large: 520ms;
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* --- Text --------------------------------------------------------------
+     Four steps, and the gaps between them are wide on purpose. The old scale
+     ran 100% / 87% / 64% / 42% white, where the last two sat on the same side of
+     the WCAG AA boundary (4.5:1) as the ones above them and so read as "three
+     greys" rather than as a hierarchy — and `--fg-dim` at 42% was genuinely
+     unreadable at 6.9:1 over the deep-space base.
+
+     The new scale keeps `--fg-dim` as a decorative-only token (there is no
+     semantic colour for it) and pushes the three real text steps further apart:
+       --fg        #FFFFFF  19.6:1   headings, titles, primary labels
+       --fg-muted  #D6D2E0  12.1:1   body copy, descriptions
+       --fg-faint  #A8A2B8   7.2:1   metadata, placeholders, legal
+     All three clear AA comfortably, and the largest gap sits between muted and
+     faint so a caption still reads as clearly subordinate to body text. */
+  --fg: #ffffff;
+  --fg-muted: #d6d2e0;
+  --fg-faint: #a8a2b8;
+  --fg-dim: #8b8598;
+
+  /* --- Radii ------------------------------------------------------------- */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-full: 9999px;
+
+  /* --- Shadows ----------------------------------------------------------- */
+  --shadow-soft: 0 4px 24px -4px rgba(0, 0, 0, 0.4);
+  --shadow-medium: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+  --shadow-strong: 0 16px 48px -16px rgba(0, 0, 0, 0.6);
+  --shadow-lift: 0 10px 26px -12px rgba(0, 0, 0, 0.62), 0 32px 68px -30px rgba(0, 0, 0, 0.85);
+  --shadow-premium: 0 32px 88px -38px rgba(0, 0, 0, 0.92);
+  --shadow-glow: 0 0 40px -8px rgba(25, 211, 174, 0.3);
+  --shadow-glow-strong: 0 0 60px -12px rgba(25, 211, 174, 0.4);
+
+  /* --- Blur -------------------------------------------------------------- */
+  --blur-sm: blur(8px);
+  --blur-md: blur(12px);
+  --blur-lg: blur(20px);
+  --blur-xl: blur(32px);
+  --blur-2xl: blur(48px);
+
+  color-scheme: dark;
+}
+
+/* --------------------------------------------------------------------------
+   `.dark` theme - enhanced with holographic depth
+   -------------------------------------------------------------------------- */
+.dark {
+  --bg: var(--hd-deep-space);
+  --bg-soft: var(--hd-space);
+  --bg-elevated: var(--hd-nebula);
+  --card: rgba(255, 255, 255, 0.04);
+  --card-soft: rgba(255, 255, 255, 0.025);
+  --card-elevated: rgba(255, 255, 255, 0.06);
+  --card-hover: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-glow: rgba(255, 255, 255, 0.12);
+
+  --fg: #ffffff;
+  --fg-muted: #d6d2e0;
+  --fg-faint: #a8a2b8;
+  --fg-dim: #8b8598;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-soft: var(--bg-soft);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-card: var(--card);
+  --color-card-soft: var(--card-soft);
+  --color-card-elevated: var(--card-elevated);
+  --color-card-hover: var(--card-hover);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-line-glow: var(--border-glow);
+
+  --color-primary: var(--primary);
+  --color-primary-glow: var(--primary-glow);
+  --color-primary-ink: var(--primary-ink);
+  --color-secondary: var(--secondary);
+  --color-secondary-glow: var(--secondary-glow);
+  --color-accent: var(--accent);
+  --color-accent-glow: var(--accent-glow);
+  --color-accent-ink: var(--accent-ink);
+  --color-gold: var(--gold);
+  --color-gold-glow: var(--gold-glow);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-fg-dim: var(--fg-dim);
+
+  /* Expose the holographic palette for advanced utilities */
+  --color-deep-space: var(--hd-deep-space);
+  --color-space: var(--hd-space);
+  --color-void: var(--hd-void);
+  --color-nebula: var(--hd-nebula);
+  --color-stardust: var(--hd-stardust);
+  --color-cyan: var(--hd-cyan);
+  --color-cyan-bright: var(--hd-cyan-bright);
+  --color-cyan-deep: var(--hd-cyan-deep);
+  --color-lime: var(--hd-lime);
+  --color-lime-bright: var(--hd-lime-bright);
+  --color-lime-deep: var(--hd-lime-deep);
+  --color-purple: var(--hd-purple);
+  --color-purple-bright: var(--hd-purple-bright);
+  --color-purple-deep: var(--hd-purple-deep);
+  --color-pink: var(--hd-pink);
+  --color-pink-bright: var(--hd-pink-bright);
+  --color-pink-deep: var(--hd-pink-deep);
+  --color-blue: var(--hd-blue);
+  --color-blue-bright: var(--hd-blue-bright);
+  --color-blue-deep: var(--hd-blue-deep);
+  --color-orange: var(--hd-orange);
+  --color-orange-bright: var(--hd-orange-bright);
+  --color-orange-deep: var(--hd-orange-deep);
+  --color-gold: var(--hd-gold);
+  --color-gold-bright: var(--hd-gold-bright);
+  --color-gold-deep: var(--hd-gold-deep);
+  --color-silver: var(--hd-silver);
+  --color-silver-bright: var(--hd-silver-bright);
+  --color-silver-deep: var(--hd-silver-deep);
+
+  /* Warm plum / gift-paper family — see the palette comment above. */
+  --color-plum: var(--hd-plum);
+  --color-plum-deep: var(--hd-plum-deep);
+  --color-plum-soft: var(--hd-plum-soft);
+  --color-ink: var(--hd-ink);
+  --color-night: var(--hd-night);
+  --color-coral: var(--hd-coral);
+  --color-rose: var(--hd-rose);
+  --color-yellow: var(--hd-yellow);
+  --color-yellow-bright: var(--hd-yellow-bright);
+  --color-lavender: var(--hd-lavender);
+  --color-lavender-deep: var(--hd-lavender-deep);
+  --color-pink-soft: var(--hd-pink-soft);
+  --color-gold-soft: var(--hd-gold-soft);
+
+  /* Motion + depth, exposed as Tailwind theme values so they can be used in
+     arbitrary values (`duration-[var(--duration-large)]`) and utilities. */
+  --ease-expo: var(--ease-out-expo);
+  --ease-quart: var(--ease-out-quart);
+  --ease-spring: var(--ease-spring);
+
+  --shadow-lift: var(--shadow-lift);
+  --shadow-premium: var(--shadow-premium);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-full: var(--radius-full);
+
+  --font-sans: var(--font-arabic), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font-serif), var(--font-arabic), Georgia, serif;
+  --font-serif: var(--font-serif), Georgia, 'Times New Roman', serif;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Arabic reads better with slightly looser leading than Latin. */
+body,
+input,
+textarea,
+button,
+select {
+  line-height: 1.75;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--primary) 40%, transparent);
+  color: var(--fg);
+}
+
+/* Numerals inside stat cards should stay tabular so columns line up. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Scrollbar — subtle, matches the dark surface
+   -------------------------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(247, 242, 255, 0.14);
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(247, 242, 255, 0.26);
+}
+
+/* --------------------------------------------------------------------------
+   Focus — always visible, never removed
+   -------------------------------------------------------------------------- */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ==========================================================================
+   Surfaces & effects
+   ========================================================================== */
+
+@utility glass {
+  background: color-mix(in oklab, var(--card) 70%, transparent);
+  backdrop-filter: var(--blur-lg) saturate(180%);
+  -webkit-backdrop-filter: var(--blur-lg) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+@utility glass-strong {
+  background: color-mix(in oklab, var(--card-elevated) 85%, transparent);
+  backdrop-filter: var(--blur-xl) saturate(200%);
+  -webkit-backdrop-filter: var(--blur-xl) saturate(200%);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-medium);
+}
+
+@utility glass-premium {
+  background: color-mix(in oklab, var(--card-hover) 75%, transparent);
+  backdrop-filter: var(--blur-2xl) saturate(220%);
+  -webkit-backdrop-filter: var(--blur-2xl) saturate(220%);
+  border: 1px solid var(--border-glow);
+  box-shadow: var(--shadow-strong), 0 0 40px -8px rgba(25, 211, 174, 0.15);
+}
+
+/* A hairline gradient border drawn with a mask, so the border itself can be
+   a gradient without needing a pseudo-element wrapper in the markup. */
+@utility gradient-border {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--primary) 65%, transparent),
+      color-mix(in oklab, var(--secondary) 55%, transparent) 50%,
+      color-mix(in oklab, var(--accent) 65%, transparent)
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@utility holographic-border {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(
+      135deg,
+      var(--hd-cyan) 0%,
+      var(--hd-lime) 25%,
+      var(--hd-purple) 50%,
+      var(--hd-pink) 75%,
+      var(--hd-cyan) 100%
+    );
+    background-size: 300% 300%;
+    animation: hd-holographic-shift 8s ease infinite;
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@utility glow-effect {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--primary) 30%, transparent),
+      color-mix(in oklab, var(--secondary) 30%, transparent) 50%,
+      color-mix(in oklab, var(--accent) 30%, transparent)
+    );
+    filter: blur(16px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
+  &:hover::after {
+    opacity: 0.6;
+  }
+}
+
+@utility card-hover {
+  transition:
+    transform 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 480ms ease,
+    box-shadow 480ms ease,
+    background 480ms ease;
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: var(--border-glow);
+    box-shadow: var(--shadow-medium), 0 0 30px -8px rgba(25, 211, 174, 0.2);
+  }
+}
+
+@utility card-3d {
+  transition:
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 600ms ease,
+    box-shadow 600ms ease;
+  perspective: 1000px;
+  &:hover {
+    transform: translateY(-8px) rotateX(4deg) rotateY(-4deg);
+    border-color: var(--border-glow);
+    box-shadow: var(--shadow-strong), 0 0 50px -12px rgba(25, 211, 174, 0.3);
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3D depth layer — pointer parallax primitives
+   -------------------------------------------------------------------------- */
+
+/* Children of a `Parallax` (or any container that sets --px/--py) translate
+   themselves in Z-space with the composable `translate` property, so they never
+   fight Motion's `transform` on the same element. Higher = closer to viewer. */
+@utility depth-1 {
+  translate: calc(var(--px, 0) * 12px) calc(var(--py, 0) * 8px);
+}
+
+@utility depth-2 {
+  translate: calc(var(--px, 0) * 26px) calc(var(--py, 0) * 18px);
+}
+
+@utility depth-3 {
+  translate: calc(var(--px, 0) * 42px) calc(var(--py, 0) * 30px);
+}
+
+/* Soft ease on the parallax layers so depth changes glide instead of jerk. */
+@utility parallax-smooth {
+  transition: translate 1100ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+    3D page depth (see components/shared/scroll-depth.tsx)
+    --------------------------------------------------------------------------
+    The WebGL cosmos is genuinely three-dimensional. Without help, the content
+    on top of it reads as a flat layer pasted over a picture. This closes that
+    gap by placing the page's content inside a 3D context and leaning the whole
+    context away from the cursor.
+
+    `--page-rx` / `--page-ry` are written by the component on pointer move.
+    Both fall back to 0deg, so the page is perfectly readable if JS never runs,
+    or before the first pointer event.
+
+    Note what is deliberately *not* here: a per-section `translateZ`. Motion
+    writes `transform` inline on every animated element, and an inline
+    transform always beats a stylesheet one — so any depth written here would be
+    silently overwritten on the sections that animate. The per-card depth comes
+    from `Tilt3D` instead, which owns its own transform and cannot conflict.
+   ========================================================================== */
+
+.page-depth {
+  /* A tall perspective makes the rotation read as a gentle lean rather than a
+     fisheye. 2200px is roughly a 15-degree view cone at page scale. */
+  perspective: 2200px;
+  perspective-origin: 50% 40%;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--page-rx, 0deg)) rotateY(var(--page-ry, 0deg));
+  /* Long ease so the content drifts after the cursor instead of snapping. */
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* On narrow screens a page-wide rotation makes body text noticeably harder to
+   read, and a phone is often held close to the face. The page stays flat there;
+   the 3D still reads through the WebGL scene and the per-card tilt. */
+@media (max-width: 768px) {
+  .page-depth {
+    perspective: none;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3D tilt surface (see components/ui/tilt-3d.tsx)
+   -------------------------------------------------------------------------- */
+
+.tilt-surface {
+  transform-style: preserve-3d;
+}
+
+/* Specular glare that rides the tilt: positioned by --px/--py, invisible until
+   the surface is hovered, never interactive. */
+.tilt-glare {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 120% at calc(50% + var(--px, 0) * 150%) calc(50% + var(--py, 0) * 150%),
+    color-mix(in oklab, var(--fg) 16%, transparent),
+    transparent 58%
+  );
+  transition: opacity 320ms ease;
+}
+
+.tilt-hover .tilt-glare {
+  opacity: 1;
+}
+
+/* A gradient headline that shimmers continuously and casts a matching glow.
+   This is what makes the hero type read as a lit, holographic object rather
+   than flat text sitting on the page.
+
+   The ramp is the warm "gift paper" family, not the cyan/lime product accent.
+   The cool ramp's lime midpoint lands as a glaring yellow-green against the deep
+   plum, which fights the wordmark above it and reads as a rendering fault
+   rather than a highlight. Warm stays inside the brand's own palette. */
+@utility holo-text {
+  background: linear-gradient(
+    115deg,
+    var(--hd-coral) 0%,
+    var(--hd-rose) 26%,
+    var(--hd-purple) 52%,
+    var(--hd-lavender-deep) 74%,
+    var(--hd-coral) 100%
+  );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: hd-holo-sweep 7s linear infinite;
+  filter: drop-shadow(0 6px 26px color-mix(in oklab, var(--hd-purple) 45%, transparent));
+}
+
+/* A 3D "hologram" edge sweep for the standout cards. Runs continuously but so
+   slowly it reads as a shimmer rather than a loop. */
+@keyframes hd-holo-sweep {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.holo-surface {
+  position: relative;
+  background-image: linear-gradient(
+    100deg,
+    color-mix(in oklab, var(--hd-cyan) 0%, transparent),
+    color-mix(in oklab, var(--hd-lime) 18%, transparent),
+    color-mix(in oklab, var(--hd-purple) 32%, transparent),
+    color-mix(in oklab, var(--hd-pink) 18%, transparent),
+    color-mix(in oklab, var(--hd-cyan) 0%, transparent)
+  );
+  background-size: 200% 100%;
+  animation: hd-holo-sweep 9s linear infinite;
+}
+
+/* A card that lifts off the page plane and casts a coloured shadow beneath it.
+   The shadow is what actually sells the elevation — a transform alone just
+   makes the card look like it slid. */
+@keyframes hd-hover-rise {
+  0%,
+  100% {
+    transform: translateZ(0);
+  }
+  50% {
+    transform: translateZ(26px);
+  }
+}
+
+.hover-rise {
+  transition:
+    transform 620ms var(--ease-out-expo),
+    box-shadow 620ms var(--ease-out-expo),
+    border-color 400ms ease;
+}
+
+.hover-rise:hover {
+  transform: translateZ(26px);
+  box-shadow:
+    var(--shadow-lift),
+    0 30px 60px -30px color-mix(in oklab, var(--primary) 55%, transparent);
+  border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+}
+
+.animate-holo-sweep {
+  animation: hd-holo-sweep 9s linear infinite;
+}
+
+.animate-hover-rise {
+  animation: hd-hover-rise 7s ease-in-out infinite;
+}
+
+/* ==========================================================================
+    Typography helpers
+    ========================================================================== */
+
+@utility text-gradient {
+  background: linear-gradient(135deg, var(--hd-cyan) 0%, var(--hd-lime) 50%, var(--hd-purple) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-gradient-gold {
+  background: linear-gradient(135deg, var(--hd-gold) 0%, var(--hd-orange) 50%, var(--hd-pink) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-gradient-on-dark {
+  background: linear-gradient(135deg, var(--hd-cyan-bright) 0%, var(--hd-lime-bright) 50%, var(--hd-purple-bright) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-glow {
+  text-shadow: 0 0 20px color-mix(in oklab, var(--primary) 40%, transparent),
+               0 0 40px color-mix(in oklab, var(--secondary) 30%, transparent);
+}
+
+/* ==========================================================================
+   Reveal helpers (CSS-only; used where a motion component would be overkill)
+   ========================================================================== */
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@utility reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+@utility decorative-dot {
+  position: relative;
+}
+
+/* ==========================================================================
+   Keyframes
+   ========================================================================== */
+
+@keyframes hd-blob {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(4%, -7%, 0) scale(1.1);
+  }
+  66% {
+    transform: translate3d(-6%, 5%, 0) scale(0.94);
+  }
+}
+
+@keyframes hd-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(5deg);
+  }
+}
+
+@keyframes hd-shimmer {
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes hd-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 20px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes hd-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes hd-thinking {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Slow drifting sparkle used around the hero gift. */
+@keyframes hd-rise {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-120px) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Small rotating star — used on the decorative sticker layer. */
+@keyframes hd-spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Gentle floating gift box: a touch of lift plus a very slight tilt. */
+@keyframes hd-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(1.5deg);
+  }
+}
+
+/* Heart that drifts upward and fades — used on the gift opening page. */
+@keyframes hd-heart-float {
+  0% {
+    transform: translateY(0) scale(0.7);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-160px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* Soft glow breathing behind the hero gift. */
+@keyframes hd-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes hd-ribbon-sway {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes hd-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* New holographic animations */
+@keyframes hd-holographic-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes hd-neon-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px -4px color-mix(in oklab, var(--primary) 40%, transparent),
+                0 0 40px -8px color-mix(in oklab, var(--secondary) 30%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 30px -6px color-mix(in oklab, var(--primary) 60%, transparent),
+                0 0 60px -12px color-mix(in oklab, var(--secondary) 45%, transparent);
+  }
+}
+
+/* Star twinkle — a gentle brightness blink used by the background starfield. */
+@keyframes hd-twinkle {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Shine sweep that passes across a surface on hover. */
+@keyframes hd-shine {
+  0% {
+    transform: translateX(-130%);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  42% {
+    transform: translateX(130%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(160%);
+    opacity: 0;
+  }
+}
+
+@keyframes hd-morph {
+  0%,
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+}
+
+@keyframes hd-orbit {
+  0% {
+    transform: rotate(0deg) translateX(100px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(100px) rotate(-360deg);
+  }
+}
+
+@keyframes hd-cursor-glow {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes hd-text-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes hd-float-diagonal {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(10px, -10px) rotate(2deg);
+  }
+  50% {
+    transform: translate(0, -20px) rotate(0deg);
+  }
+  75% {
+    transform: translate(-10px, -10px) rotate(-2deg);
+  }
+}
+
+@keyframes hd-particle-rise {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) scale(1);
+    opacity: 0;
+  }
+}
+
+.animate-blob {
+  animation: hd-blob 24s ease-in-out infinite;
+}
+.animate-float {
+  animation: hd-float 6s ease-in-out infinite;
+}
+.animate-bob {
+  animation: hd-bob 6s ease-in-out infinite;
+}
+.animate-spin-slow {
+  animation: hd-spin-slow 18s linear infinite;
+}
+.animate-glow-pulse {
+  animation: hd-glow-pulse 7s ease-in-out infinite;
+}
+.animate-pulse-ring {
+  animation: hd-pulse-ring 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.animate-marquee {
+  animation: hd-marquee 44s linear infinite;
+}
+.animate-thinking {
+  animation: hd-thinking 1.4s ease-in-out infinite both;
+}
+.animate-ribbon {
+  animation: hd-ribbon-sway 3.4s ease-in-out infinite;
+}
+.animate-neon-pulse {
+  animation: hd-neon-pulse 3s ease-in-out infinite;
+}
+.animate-morph {
+  animation: hd-morph 8s ease-in-out infinite;
+}
+.animate-float-diagonal {
+  animation: hd-float-diagonal 6s ease-in-out infinite;
+}
+.animate-twinkle {
+  animation: hd-twinkle 4.5s ease-in-out infinite;
+}
+
+/* Shine sweep child — pair with a `relative overflow-hidden` surface so it
+   only ever renders on hover. */
+.shine-sweep {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transform: translateX(-130%);
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 42%,
+    color-mix(in oklab, var(--fg) 14%, transparent) 50%,
+    transparent 58%
+  );
+}
+.group:hover .shine-sweep {
+  opacity: 1;
+  animation: hd-shine 0.9s ease-in-out infinite;
+}
+
+@utility animated-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--hd-cyan) 0%,
+    var(--hd-lime) 25%,
+    var(--hd-purple) 50%,
+    var(--hd-pink) 75%,
+    var(--hd-cyan) 100%
+  );
+  background-size: 300% 300%;
+  animation: hd-holographic-shift 8s ease infinite;
+}
+
+@utility holographic-text {
+  background: linear-gradient(
+    135deg,
+    var(--hd-cyan) 0%,
+    var(--hd-lime) 25%,
+    var(--hd-purple) 50%,
+    var(--hd-pink) 75%,
+    var(--hd-cyan) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: hd-text-shimmer 4s linear infinite;
+}
+
+/* Shimmer sweep for skeletons. */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(100%);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--fg) 8%, transparent), transparent);
+  animation: hd-shimmer 2s infinite;
+}
+
+/* ==========================================================================
+   Decorative backgrounds
+   ========================================================================== */
+
+/* Warm paper wash — keeps large cream areas from reading as flat white. */
+@utility bg-paper {
+  background-image:
+    radial-gradient(circle at 12% 18%, color-mix(in oklab, var(--hd-purple) 26%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 88% 8%, color-mix(in oklab, var(--hd-pink) 20%, transparent) 0%, transparent 38%),
+    radial-gradient(circle at 72% 88%, color-mix(in oklab, var(--hd-plum-soft) 60%, transparent) 0%, transparent 46%);
+}
+
+@utility bg-grid-faint {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--fg) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--fg) 5%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+@utility bg-dots-faint {
+  background-image: radial-gradient(circle at center, currentColor 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* ==========================================================================
+    Native select / option legibility
+    --------------------------------------------------------------------------
+    A native <select> renders its popup in the OS/browser's own layer, OUTSIDE
+    the page — so a transparent option background falls back to whatever the
+    user agent picks, and with a translucent glass field behind it that can end
+    up as dark text on a dark popup. `color-scheme: dark` is set on :root, so
+    Chrome does choose a dark popup, but relying on that alone leaves the actual
+    text colour unguaranteed.
+
+    This rule pins both sides of the pair explicitly, and applies to every
+    native select in the app — the `Select` primitive sets the same thing, but
+    most pages use a raw <select> and were relying on the UA default.
+   ========================================================================== */
+
+@layer base {
+  select option {
+    background-color: #10141a;
+    color: #ffffff;
+  }
+
+  select option:checked {
+    background-color: #1c2430;
+    color: #ffffff;
+  }
+}
+
+/* ==========================================================================
+    Reduced motion — honour the OS preference everywhere
+    ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* The page-depth wrapper is bypassed entirely in JS under reduced motion, but
+     this is the belt-and-braces: even if it is present, it stays flat. */
+  .page-depth {
+    perspective: none;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Print — gift pages should be printable
+   ========================================================================== */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
