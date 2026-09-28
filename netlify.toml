@@ -1,12 +1,21 @@
-[build]
-  # Next.js on Netlify is wired up through the @netlify/plugin-nextjs runtime (see
-  # [plugins] below), so no framework preset is needed. NODE_VERSION is the one
-  # setting that does matter and it is usually wrong: Netlify's default image
-  # ships a Node older than the `>=20.9.0` engines field in package.json, and the
-  # install then fails on an "engines" error before a single line is compiled.
-  environment = { NODE_VERSION = "20" }
-
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
+#
+# Next.js on Netlify is wired up through the @netlify/plugin-nextjs runtime (see
+# [plugins] below), so no framework preset is needed.
+#
+# NODE_VERSION is the one setting that usually gets missed: Netlify's default
+# image ships a Node older than the `>=20.9.0` engines field in package.json, and
+# the install then fails on an "engines" error before a single line is compiled.
+#
+# Declared as a single [build.environment] table, never as an inline
+# `environment = { ... }` on [build]. TOML does not allow a key to be defined
+# once as an inline table and again as a [table] header — the parser rejects the
+# whole file with "trying to redefine an already defined table or value", and
+# the build dies during config parsing before npm install even runs.
 [build.environment]
+  NODE_VERSION = "20"
   NEXT_TELEMETRY_DISABLED = "1"
 
 # ---------------------------------------------------------------------------
@@ -64,13 +73,13 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# The 3D scene is a real WebGL canvas, so WebGL is required for the visual to
-# work. The app still degrades to CSS-only if it is blocked, so this is
-# advertised rather than enforced.
+# Preconnect to the Supabase project, which every authenticated page and every
+# API route talks to. Resolving DNS and the TLS handshake before the first
+# request removes a full round-trip from the critical path.
 [[headers]]
   for = "/*"
   [headers.values]
-    X-DNS-Prefetch-Control = "off"
+    X-DNS-Prefetch-Control = "on"
 
 # ---------------------------------------------------------------------------
 # Edge middleware

@@ -74,6 +74,7 @@
     "eslint-config-next": "^15.5.26",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
+    "smol-toml": "^1.9.0",
     "tailwindcss": "^4.1.4",
     "tw-animate-css": "^1.2.5",
     "typescript": "^5.8.3"
